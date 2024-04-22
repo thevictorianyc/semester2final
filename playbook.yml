@@ -1,0 +1,31 @@
+---
+- name: LAMP install
+  hosts: slave
+  become: yes
+  tasks:
+    - name: copy bash script to slave
+      copy:
+        src: /home/vagrant/lamp-install.sh
+        dest: /home/vagrant/lamp-install.sh
+        mode: 0755
+
+    - name: execute bash script to setup LAMP stack
+      command: /home/vagrant/lamp-install.sh
+
+
+  - name: Verify PHP application accesibilty
+  shell: "curl http://192.168.33.9/var/www/laravel"
+  register: result
+  ignore_errors: yes
+
+- name: Show output
+  debug: 
+    var: result.stdout
+
+  - name: Create cron job
+      cron:
+        name: "uptime check"
+        minute: "0"
+        hour: "0"
+        job: "/usr/bin/uptime >> /home/vagrant/uptime.log"
+        state: present
